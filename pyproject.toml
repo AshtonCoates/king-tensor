@@ -1,0 +1,7 @@
+[project]
+name = "king-tensor"
+version = "0.1.0"
+description = "Dominate Clash Royale with AI"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
