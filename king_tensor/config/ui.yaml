@@ -4,10 +4,10 @@ screen:
 
 regions:
   elixir_bar:
-    x: 23
-    y: 2395
-    w: 1130
-    h: 88
+    x: 106
+    y: 2435
+    w: 1025
+    h: 20
 
   timer:
     x: 949

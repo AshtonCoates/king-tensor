@@ -63,7 +63,7 @@ class Screen:
         fig, axes = plt.subplots(img_rows, img_cols)
         for (label, img), ax in zip(self.images.items(), axes.flat):
             ax.imshow(img)
-        
+
         plt.tight_layout()
         plt.show()
 
@@ -73,4 +73,6 @@ if __name__ == '__main__':
     img = cv2.imread(img_path)
     config_path = PACKAGE_DIR / 'config' / 'ui.yaml'
     screen = Screen(img, config_path)
-    screen.plot_images()
+    plt.imshow(screen.images['elixir_bar'])
+    plt.show()
+    # screen.plot_images()
