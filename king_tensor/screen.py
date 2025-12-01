@@ -8,8 +8,6 @@ import pathlib
 
 matplotlib.use('TkAgg')
 
-PACKAGE_DIR = pathlib.Path(__file__).resolve().parents[0]
-
 @dataclass
 class ROI:
     x: int
@@ -68,11 +66,11 @@ class Screen:
         plt.show()
 
 if __name__ == '__main__':
-    PROJECT_DIR = pathlib.Path(__file__).resolve().parents[1]
-    img_path = PROJECT_DIR / 'data' / 'IMG_1470.PNG'
+    from king_tensor.globals import CONFIG_DIR, DATA_DIR
+    img_path = DATA_DIR / 'IMG_1470.PNG'
     img = cv2.imread(img_path)
-    config_path = PACKAGE_DIR / 'config' / 'ui.yaml'
+    config_path = CONFIG_DIR / 'ui.yaml'
     screen = Screen(img, config_path)
     plt.imshow(screen.images['elixir_bar'])
     plt.show()
-    # screen.plot_images()
+    # screen.plot_images(PROJECT_DIR / 'data')
