@@ -20,7 +20,7 @@ class Screen:
     Class to parse the screen and store all objects
     """
 
-    def __init__(self, img: np.ndarray, config: pathlib.Path):
+    def __init__(self, img: np.ndarray, config: dict[dict[str, int]]):
         """
         Args:
             img (np.ndarray): The image of the screen
@@ -29,11 +29,8 @@ class Screen:
             Screen: Object containing images for each cropped component
         """
         self.img = img
-
-        with open(config, 'r') as file:
-            self.data = yaml.safe_load(file)
-
-        self.images = self._parse_images(self.data['regions'])
+        self.config = config
+        self.images = self._parse_images(self.config['regions'])
 
     def _crop_image(self, img: np.ndarray, region: ROI):
         crop = img[
