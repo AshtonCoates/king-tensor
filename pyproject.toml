@@ -8,11 +8,19 @@ version = "0.1.0"
 description = "Dominate Clash Royale with AI"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "matplotlib>=3.10.8",
+    "numpy>=2.3.5",
+    "opencv-python>=4.11.0.86",
+    "pyyaml>=6.0.3",
+    "torch>=2.9.1",
+    "torchvision>=0.24.1",
+]
 
 [project.scripts]
 boxer = "king_tensor.utils.boxer:main"
 kt-help = "king_tensor.utils.help:main"
+dataclean = "king_tensor.utils.dataclean:main"
 
 [tool.setuptools]
 packages = ["king_tensor"]
