@@ -24,3 +24,16 @@ dataclean = "king_tensor.utils.dataclean:main"
 
 [tool.setuptools]
 packages = ["king_tensor"]
+
+[tool.uv.workspace]
+members = [
+    ".",
+]
+
+[tool.uv.sources]
+king-tensor = { workspace = true, editable = true }
+
+[dependency-groups]
+dev = [
+    "king-tensor",
+]
