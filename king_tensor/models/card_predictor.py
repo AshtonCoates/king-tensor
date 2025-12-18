@@ -4,12 +4,89 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Any, Callable, Mapping
+from abc import ABC, abstractmethod
+from pathlib import Path
+
+class FlatImageDataset(Dataset):
+    def __init__(self, root_dir: str, transform=None):
+        self.root = Path(root_dir)
+        card_paths = self.root.glob('*.png')
+        self.paths = [path for path in card_paths]
+
+        # label name = filename without extension
+        self.class_names = [p.stem for p in self.paths]
+        self.class_to_idx = {name: i for i, name in enumerate(self.class_names)}
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.paths)
+
+    def __getitem__(self, idx):
+        path = self.paths[idx]
+        img = Image.open(path).convert("RGBA")
+        if self.transform:
+            img = self.transform(img)
+
+        label_name = path.stem
+        label = self.class_to_idx[label_name]
+        return img, label
+
+class InferenceModel(ABC):
+
+    def __init__(
+        self,
+        model_path: str | Path,
+        classes: List[str],
+        tfm: Callable[[Any], Any] = lambda x: x,
+        device: torch.device | str = "cpu",
+    ):
+        self.model_path = Path(model_path)
+        self.classes = classes
+        self.tfm = tfm
+        self.device = device
+
+        self.model = self.build_model()
+        self.load_weights(self.model_path)
+        self.model.to(self.device)
+        self.model.eval()
+
+    @abstractmethod
+    def build_model(self) -> nn.Module:
+        """Return the architecture for this version."""
+        raise NotImplementedError
+
+    def load_weights(self, path: Path) -> None:
+        """Default: load a state_dict. Override if you use TorchScript, safetensors, etc."""
+        state = torch.load(path, map_location="cpu")
+        # handle common checkpoint formats
+        if isinstance(state, dict) and "state_dict" in state:
+            state = state["state_dict"]
+        self.model.load_state_dict(state)
+
+    @torch.inference_mode()
+    def __call__(self, data: Any) -> Any:
+        x = self.tfm(data)
+        x = self._to_device(x, self.device)
+        y = self.model(x)
+        return self.postprocess(y)
+
+    def postprocess(self, y: Any) -> Any:
+        return y
+
+    def _to_device(self, obj: Any, device: torch.device | str) -> Any:
+        if torch.is_tensor(obj):
+            return obj.to(device)
+        if isinstance(obj, dict):
+            return {k: self._to_device(v, device) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple)):
+            t = [self._to_device(v, device) for v in obj]
+            return type(obj)(t)
+        return obj
 
 def create_model(version: str, num_classes: int):
-
     if version == "v1":
         from .v1 import SmallCardNet, transform, model_path
         return SmallCardNet(num_classes), transform, model_path

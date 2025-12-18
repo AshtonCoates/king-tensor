@@ -1,18 +1,20 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torchvision import transforms
 from pathlib import Path
+from ..card_predictor import InferenceModel
 
-model_path = Path(__file__).parent.resolve() / './pbs_naive.pth'
+_model_path = Path(__file__).parent.resolve() / './pbs_naive.pth'
 
-transform = transforms.Compose([
+_device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+
+_transform = transforms.Compose([
     transforms.Resize((64, 64)),
     transforms.ToTensor(),
 ])
 
-class SmallCardNet(nn.Module):
+class _SmallCardNet(nn.Module):
     def __init__(self, num_classes: int):
         super().__init__()
         self.conv1 = nn.Conv2d(3, 16, 3, padding=1)
@@ -30,5 +32,13 @@ class SmallCardNet(nn.Module):
         x = F.relu(self.fc1(x))
         return self.fc2(x)
 
+classes = ['bandit', 'battle_ram', 'electro_wizard', 'minions', 'pekka', 'poison', 'royal_ghost', 'zap']
+
+class ModelV1(InferenceModel):
+    def build_model(self) -> nn.Module:
+        return _SmallCardNet(len(self.classes))
+
+
 if __name__ == '__main__':
-    print(model_path)
+    ds_path = Path("data/deckshop_cards").resolve()
+    model = ModelV1(_model_path, classes, _transform, _device)
