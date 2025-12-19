@@ -68,13 +68,15 @@ class InferenceModel(ABC):
 
     @torch.inference_mode()
     def __call__(self, data: Any) -> Any:
-        x = self.tfm(data)
+        x = self.tfm(data).unsqueeze(0)
         x = self._to_device(x, self.device)
         y = self.model(x)
         return self.postprocess(y)
 
     def postprocess(self, y: Any) -> Any:
-        return y
+        pred_idx = y.argmax(dim=1).item()
+        pred_class = self.classes[pred_idx]
+        return pred_class, pred_idx, y
 
     def _to_device(self, obj: Any, device: torch.device | str) -> Any:
         if torch.is_tensor(obj):

@@ -4,9 +4,8 @@ import torch.nn.functional as F
 from torchvision import transforms
 from pathlib import Path
 from ..card_predictor import InferenceModel
-from PIL import Image
 
-_model_path = Path(__file__).parent.resolve() / './pbs_naive.pth'
+_model_path = Path(__file__).parent.resolve() / 'model_v2.pth'
 
 _device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
@@ -33,8 +32,6 @@ class _SmallCardNet(nn.Module):
         x = F.relu(self.fc1(x))
         return self.fc2(x)
 
-classes = ['bandit', 'battle_ram', 'electro_wizard', 'minions', 'pekka', 'poison', 'royal_ghost', 'zap']
-
 class ModelV1(InferenceModel):
     def build_model(self) -> nn.Module:
         return _SmallCardNet(len(self.classes))
@@ -43,8 +40,3 @@ class ModelV1(InferenceModel):
 if __name__ == '__main__':
     ds_path = Path("data/deckshop_cards").resolve()
     model = ModelV1(_model_path, classes, _transform, _device)
-    
-    img_path = Path("data/card_classifier/pbs/pekka/0002.png")
-    img = Image.open(img_path).convert("RGB")
-    pred = model(img)
-    print(pred)
