@@ -32,11 +32,25 @@ class _SmallCardNet(nn.Module):
         x = F.relu(self.fc1(x))
         return self.fc2(x)
 
-class ModelV1(InferenceModel):
+class ModelV2(InferenceModel):
     def build_model(self) -> nn.Module:
         return _SmallCardNet(len(self.classes))
 
 
 if __name__ == '__main__':
+    from ..card_predictor import FlatImageDataset
+    from PIL import Image
     ds_path = Path("data/deckshop_cards").resolve()
-    model = ModelV1(_model_path, classes, _transform, _device)
+    ds = FlatImageDataset(ds_path, transform=_transform)
+    classes = ds.class_names
+    model = ModelV2(_model_path, classes, _transform, _device)
+
+    img_path = Path("data/card_classifier/pbs/zap/0012.png")
+    img = Image.open(img_path).convert("RGB")
+    troop, idx, logits  = model(img)
+    troop_logits = list(zip(classes, logits.tolist()[0]))
+    troop_logits.sort(key=lambda x: x[1], reverse=True)
+
+    for res in troop_logits[:10]:
+        print(res)
+

@@ -67,15 +67,18 @@ class InferenceModel(ABC):
         self.model.load_state_dict(state)
 
     @torch.inference_mode()
-    def __call__(self, data: Any) -> Any:
+    def __call__(self, data: Any, class_name_only: bool = False) -> Any:
         x = self.tfm(data).unsqueeze(0)
         x = self._to_device(x, self.device)
         y = self.model(x)
-        return self.postprocess(y)
+        return self.postprocess(y, class_name_only)
 
-    def postprocess(self, y: Any) -> Any:
+    def postprocess(self, y: Any, class_name_only: bool = False) -> Any:
         pred_idx = y.argmax(dim=1).item()
         pred_class = self.classes[pred_idx]
+
+        if class_name_only:
+            return pred_class
         return pred_class, pred_idx, y
 
     def _to_device(self, obj: Any, device: torch.device | str) -> Any:
@@ -87,60 +90,3 @@ class InferenceModel(ABC):
             t = [self._to_device(v, device) for v in obj]
             return type(obj)(t)
         return obj
-
-def create_model(version: str, num_classes: int):
-    if version == "v1":
-        from .v1 import SmallCardNet, transform, model_path
-        return SmallCardNet(num_classes), transform, model_path
-    else:
-        raise ValueError(f"Unknown model version: {version}")
-
-class CardPredictor:
-    def __init__(
-        self,
-        version: str,
-        classes: List[str]
-    ):
-        self.classes = classes
-        self._model, self._tfm, self._model_path = create_model(version, len(classes))
-        self._state_dict = torch.load(self._model_path)
-        self._model.load_state_dict(self._state_dict)
-        self._model.eval()
-
-    def predict_card(
-        self,
-        img: np.ndarray,
-    ) -> Tuple[str, int, torch.Tensor]:
-
-        """
-        Run a single card image through the model and return:
-        - predicted class name
-        - predicted class index
-        - raw logits tensor (1, num_classes)
-
-        Args:
-            img: Image as a NumPy array (H, W, 3). Assumed BGR if from OpenCV.
-        """
-
-        # Convert BGR (OpenCV) -> RGB
-        if img.shape[-1] == 3:
-            img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-        else:
-            img_rgb = img  # just in case it's already RGB/gray
-
-        pil_img = Image.fromarray(img_rgb)
-
-        # Apply transforms and add batch dimension
-        x = self._tfm(pil_img).unsqueeze(0)  # shape: (1, C, H, W)
-
-        # Move to same device as model
-        device = next(self._model.parameters()).device
-        x = x.to(device)
-
-        with torch.no_grad():
-            logits = self._model(x)  # (1, num_classes)
-            pred_idx = logits.argmax(dim=1).item()
-
-        pred_class = self.classes[pred_idx]
-        return pred_class, pred_idx, logits
-
