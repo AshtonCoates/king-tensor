@@ -6,7 +6,6 @@ from enum import Enum
 import yaml
 
 from king_tensor.screen import Screen
-from king_tensor.models import CardPredictor
 
 import torch
 import torch.nn as nn

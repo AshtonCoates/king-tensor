@@ -45,7 +45,7 @@ if __name__ == '__main__':
     classes = ds.class_names
     model = ModelV2(_model_path, classes, _transform, _device)
 
-    img_path = Path("data/card_classifier/pbs/zap/0012.png")
+    img_path = Path("data/card_classifier/pbs/electro_wizard/0021.png")
     img = Image.open(img_path).convert("RGB")
     troop, idx, logits  = model(img)
     troop_logits = list(zip(classes, logits.tolist()[0]))

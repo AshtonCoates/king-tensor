@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "matplotlib>=3.10.8",
+    "mss>=10.1.0",
     "numpy>=2.3.5",
     "opencv-python>=4.11.0.86",
     "pyyaml>=6.0.3",
@@ -19,6 +20,7 @@ dependencies = [
 ]
 
 [project.scripts]
+kt = "king_tensor.main:main"
 boxer = "king_tensor.utils.boxer:main"
 kt-help = "king_tensor.utils.help:main"
 dataclean = "king_tensor.utils.dataclean:main"
@@ -29,10 +31,11 @@ packages = ["king_tensor"]
 [tool.uv.workspace]
 members = [
     ".",
+    ".",
 ]
 
 [tool.uv.sources]
-king-tensor = { workspace = true, editable = true }
+king-tensor = { workspace = true }
 
 [dependency-groups]
 dev = [
