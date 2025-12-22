@@ -1,12 +1,14 @@
 import sys
 import cv2
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python box_picker.py path/to/image")
+
+def main(argv: list[str] | None = None):
+    args = argv if argv is not None else sys.argv[1:]
+    if not args:
+        print("Usage: kt boxer path/to/image")
         sys.exit(1)
 
-    image_path = sys.argv[1]
+    image_path = args[0]
     img = cv2.imread(image_path)
 
     if img is None:

@@ -3,7 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from dataclasses import dataclass
-import yaml
+from PIL import Image
 import pathlib
 
 matplotlib.use('TkAgg')
@@ -20,36 +20,68 @@ class Screen:
     Class to parse the screen and store all objects
     """
 
-    def __init__(self, img: np.ndarray, config: dict[dict[str, int]]):
+    def __init__(self, img: np.ndarray | Image.Image, config: dict[dict[str, int]]):
         """
         Args:
-            img (np.ndarray): The image of the screen
+            img (np.ndarray | Image.Image): The image of the screen
             config (pathlib.Path): Path to UI element config file
         Returns:
             Screen: Object containing images for each cropped component
         """
-        self.img = img
+        self.full_img = self._ensure_numpy(img)
         self.config = config
-        self.images = self._parse_images(self.config['regions'])
+        self.screen_roi = ROI(
+            self.config['screen']['x'],
+            self.config['screen']['y'],
+            self.config['screen']['w'],
+            self.config['screen']['h'],
+        )
 
-    def _crop_image(self, img: np.ndarray, region: ROI):
+        # crop the screen to just the game screen
+        self.img = self._init_screen_img()
+        self.images = self._parse_images()
+
+    def _init_screen_img(self):
+        game_img = self._crop_image(self.screen_roi, source_img=self.full_img)
+        return game_img
+
+    def _ensure_numpy(self, img: np.ndarray | Image.Image) -> np.ndarray:
+        if isinstance(img, np.ndarray):
+            return img
+        if isinstance(img, Image.Image):
+            arr = np.array(img)
+            if arr.ndim == 3 and arr.shape[2] == 4:
+                arr = arr[:, :, :3]
+            if arr.ndim == 3 and arr.shape[2] == 3:
+                arr = arr[:, :, ::-1]
+            return arr
+        raise TypeError(f"Unsupported image type: {type(img)}")
+
+    def _crop_image(self, region: ROI, source_img: np.ndarray | None = None):
+        img = self.img if source_img is None else source_img
         crop = img[
             region.y : region.y + region.h,
             region.x : region.x + region.w,
         ]
         return crop
 
-    def _parse_images(self, dims: dict[str, dict[str, int]]):
-        img_items = {}
-        for key, dim in dims.items():
-            region = ROI(
-                dim['x'],
-                dim['y'],
-                dim['w'],
-                dim['h'],
-            )
-            img_items[key] = self._crop_image(self.img, region)
+    def _parse_images(self):
+        img_items = {'screen': self.img}
+        for key, dim in self.config.items():
+            if key == 'screen':
+                continue
+            region = self._roi_from_relative(dim)
+            img_items[key] = self._crop_image(region)
         return img_items
+
+    def _roi_from_relative(self, region_cfg: dict[str, int]) -> ROI:
+        rel_x = max(region_cfg['x'], 0)
+        rel_y = max(region_cfg['y'], 0)
+        max_w = max(self.img.shape[1] - rel_x, 0)
+        max_h = max(self.img.shape[0] - rel_y, 0)
+        rel_w = min(region_cfg['w'], max_w)
+        rel_h = min(region_cfg['h'], max_h)
+        return ROI(rel_x, rel_y, rel_w, rel_h)
 
     def plot_images(self):
         num_images = len(self.images) # + 1 # add one for full image

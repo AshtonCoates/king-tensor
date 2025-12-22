@@ -1,52 +1,45 @@
 screen:
-  width: 1920
-  height: 1080
-
-regions:
-  elixir_bar:
-    x: 106
-    y: 2435
-    w: 1025
-    h: 20
-
-  timer:
-    x: 949
-    y: 443
-    w: 229
-    h: 125
-
-  card_slot_1:
-    x: 150
-    y: 2162
-    w: 160
-    h: 251
-
-  card_slot_2:
-    x: 305
-    y: 2162
-    w: 160
-    h: 251
-
-  card_slot_3:
-    x: 460
-    y: 2162
-    w: 160
-    h: 251
-
-  card_slot_4:
-    x: 615
-    y: 2162
-    w: 160
-    h: 251
-
-  next_card:
-    x: 27
-    y: 2229
-    w: 92
-    h: 116
-
-  board:
-    x: 60
-    y: 660
-    w: 1058
-    h: 1476
+  x: 1071
+  y: 123
+  w: 505
+  h: 899
+elixir_bar:
+  x: 132
+  y: 865
+  w: 256
+  h: 22
+timer:
+  x: 430
+  y: 22
+  w: 61
+  h: 23
+card_slot_1:
+  x: 113
+  y: 743
+  w: 90
+  h: 115
+card_slot_2:
+  x: 207
+  y: 743
+  w: 90
+  h: 115
+card_slot_3:
+  x: 303
+  y: 743
+  w: 90
+  h: 115
+card_slot_4:
+  x: 397
+  y: 743
+  w: 90
+  h: 115
+next_card:
+  x: 18
+  y: 835
+  w: 51
+  h: 54
+board:
+  x: 0
+  y: 3
+  w: 504
+  h: 722

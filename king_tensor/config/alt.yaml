@@ -1,0 +1,45 @@
+screen:
+  x: 897
+  y: 113
+  w: 508
+  h: 898
+elixir_bar:
+  x: 133
+  y: 869
+  w: 356
+  h: 18
+timer:
+  x: 419
+  y: 2
+  w: 84
+  h: 48
+card_slot_1:
+  x: 113
+  y: 737
+  w: 88
+  h: 125
+card_slot_2:
+  x: 207
+  y: 744
+  w: 91
+  h: 113
+card_slot_3:
+  x: 296
+  y: 737
+  w: 95
+  h: 123
+card_slot_4:
+  x: 393
+  y: 742
+  w: 98
+  h: 122
+next_card:
+  x: 20
+  y: 834
+  w: 54
+  h: 59
+board:
+  x: 40
+  y: 42
+  w: 435
+  h: 640

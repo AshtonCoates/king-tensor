@@ -13,6 +13,7 @@ dependencies = [
     "mss>=10.1.0",
     "numpy>=2.3.5",
     "opencv-python>=4.11.0.86",
+    "pyautogui>=0.9.54",
     "pyyaml>=6.0.3",
     "torch>=2.9.1",
     "torchvision>=0.24.1",
@@ -20,16 +21,15 @@ dependencies = [
 ]
 
 [project.scripts]
-kt = "king_tensor.main:main"
-boxer = "king_tensor.utils.boxer:main"
-kt-help = "king_tensor.utils.help:main"
-dataclean = "king_tensor.utils.dataclean:main"
+kt = "king_tensor.cli:main"
 
 [tool.setuptools]
 packages = ["king_tensor"]
 
 [tool.uv.workspace]
 members = [
+    ".",
+    ".",
     ".",
     ".",
 ]
